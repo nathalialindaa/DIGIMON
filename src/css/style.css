@@ -31,3 +31,29 @@ img {
     width: 600px;
     height: auto; 
 }
+
+/* aquela amiga que faz css */
+.info-item span {
+    border-radius: 4px;           
+    padding: 4px 8px;            
+    display: inline-block;        
+    margin-top: 5px;                          
+    font-size: 14px;              
+}
+.tag-reptil {
+    background-color: #049b04;    
+    border: 1px solid #ffffff;
+    color: #000000;              
+}
+.tag-novato {
+    background-color: #07a7f1;   
+    border: 1px solid #ffffff;  
+    color: #000000;               
+}
+
+.tag-vacina {
+    background-color: #793fe4; 
+    border: 1px solid #ffffff;  
+    color: #000000;              
+}
+
