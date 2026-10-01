@@ -1,99 +1,214 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="style.css">
+
     <title>DigiStory</title>
+
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
     <header>
         <h1>DIGISTORY</h1>
+
+        <nav>
+            <button id="inicio">Início</button>
+            <button id="sobre">Sobre</button>
+        </nav>
     </header>
+
 
     <main>
 
-        <article class="digimon-card">
+        <section class="topo">
+            <h2>Lista de Digimon</h2>
 
-            <div class="digimon-header">
-                <span class="digimon-id">#001</span>
-                <h2>Agumon</h2>
-            </div>
+            <input 
+                type="text" 
+                id="pesquisa"
+                placeholder="Pesquisar Digimon..."
+            >
+        </section>
 
-            <div class="digimon-image">
-                <img src="https://gaming-cdn.com/images/news/articles/18649/cover/1000x563/digimon-story-time-stranger-vai-receber-uma-grande-expansao-em-2027-cover69bfbd6988430.jpg" alt="Imagem do Agumon">
-            </div>
 
-            <section class="digimon-info">
+        <section class="digimon-grid" id="digimonGrid">
 
-                <div class="info-item">
-                    <span>Tipo</span>
-                    <strong>Réptil</strong>
+            <article class="digimon-card">
+
+                <span class="numero">#001</span>
+
+                <img src="https://assetsio.gnwcdn.com/Digimon-Story-Time-Stranger-Update_06-18-26_Top-1440x810.jpg?width=690&quality=85&format=jpg&dpr=3&auto=webp" alt="Agumon">
+
+                <div class="digimon-info">
+                    <h3>Agumon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
                 </div>
 
-                <div class="info-item">
-                    <span>Nível</span>
-                    <strong>Novato</strong>
+            </article>
+
+
+            <article class="digimon-card">
+
+                <span class="numero">#002</span>
+
+                <img src="https://static.wikia.nocookie.net/digimonat/images/d/d1/Gabumon_b.jpg/revision/latest/scale-to-width-down/320?cb=20140419005946&path-prefix=pt" alt="Gabumon">
+
+                <div class="digimon-info">
+                    <h3>Gabumon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
                 </div>
 
-                <div class="info-item">
-                    <span>Atributo</span>
-                    <strong>Vacina</strong>
+            </article>
+
+
+            <article class="digimon-card">
+
+                <span class="numero">#003</span>
+
+                <img src="src/img/patamon.png" alt="Patamon">
+
+                <div class="digimon-info">
+                    <h3>Patamon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
                 </div>
 
-            </section>
+            </article>
 
-            <section class="description">
 
-                <h3>Descrição</h3>
+            <article class="digimon-card">
 
-                <p>
-                    Um Digimon do tipo réptil que possui um grande
-                    potencial de evolução e batalha.
-                </p>
+                <span class="numero">#004</span>
 
-            </section>
+                <img src="src/img/biyomon.png" alt="Biyomon">
 
-            <section class="abilities">
+                <div class="digimon-info">
+                    <h3>Biyomon</h3>
+                    <p>Rookie</p>
 
-                <h3>Habilidades</h3>
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
+                </div>
 
-                <article class="ability">
-                    <h4>Pequena Chama</h4>
+            </article>
 
-                    <p>
-                        Agumon dispara uma pequena chama de sua boca
-                        contra seus adversários.
-                    </p>
-                </article>
 
-                <article class="ability">
-                    <h4>Garra</h4>
+            <article class="digimon-card">
 
-                    <p>
-                        Utiliza suas garras para atacar o adversário
-                        em combates próximos.
-                    </p>
-                </article>
+                <span class="numero">#005</span>
 
-            </section>
+                <img src="src/img/tentomon.png" alt="Tentomon">
 
-        </article>
+                <div class="digimon-info">
+                    <h3>Tentomon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
+                </div>
+
+            </article>
+
+
+            <article class="digimon-card">
+
+                <span class="numero">#006</span>
+
+                <img src="src/img/palmon.png" alt="Palmon">
+
+                <div class="digimon-info">
+                    <h3>Palmon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
+                </div>
+
+            </article>
+
+
+            <article class="digimon-card">
+
+                <span class="numero">#007</span>
+
+                <img src="src/img/gomamon.png" alt="Gomamon">
+
+                <div class="digimon-info">
+                    <h3>Gomamon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
+                </div>
+
+            </article>
+
+
+            <article class="digimon-card">
+
+                <span class="numero">#008</span>
+
+                <img src="src/img/veemon.png" alt="Veemon">
+
+                <div class="digimon-info">
+                    <h3>Veemon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
+                </div>
+
+            </article>
+
+
+            <article class="digimon-card">
+
+                <span class="numero">#009</span>
+
+                <img src="src/img/wormmon.png" alt="Wormmon">
+
+                <div class="digimon-info">
+                    <h3>Wormmon</h3>
+                    <p>Rookie</p>
+
+                    <button class="info-btn">
+                        Ver informações
+                    </button>
+                </div>
+
+            </article>
+
+        </section>
 
     </main>
 
+
     <footer>
-
-        <nav>
-            <a href="#">Início</a>
-            <a href="#">Favoritos</a>
-            <a href="#">Adicionar</a>
-            <a href="#">Perfil</a>
-        </nav>
-
+        <p>© 2026 DigiStory</p>
     </footer>
+
+
+    <script src="src/js/script.js"></script>
 
 </body>
 
