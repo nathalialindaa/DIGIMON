@@ -5,6 +5,9 @@
     box-sizing: border-box;
 }
 
+
+/* PÁGINA */
+
 body {
     font-family: Arial, sans-serif;
 
@@ -31,6 +34,8 @@ header {
 
     padding: 0 50px;
 }
+
+/* TÍTULO */
 
 header h1 {
     font-size: 28px;
