@@ -12,11 +12,6 @@
 body {
     font-family: Arial, sans-serif;
 
-    /*
-    Se você quiser usar uma imagem no fundo:
-    coloque a imagem dentro de src/img
-    */
-
     background-image: url("https://a.storyblok.com/f/178900/1191x842/634be2e5f9/digimon-tamers-anime-25th-anniversary-visual.png/m/filters:quality(95)format(webp)");
 
     background-size: cover;
@@ -223,6 +218,50 @@ main {
     color: #666;
 
     margin: 8px 0 12px;
+}
+
+
+/* DESCRIÇÃO */
+
+.descricao {
+    line-height: 1.4;
+}
+
+
+/* HABILIDADES */
+
+.habilidades {
+    margin-top: 15px;
+
+    text-align: left;
+}
+
+
+.habilidades h4 {
+    color: #111d3a;
+
+    font-size: 18px;
+
+    margin-bottom: 8px;
+}
+
+
+.habilidade {
+    background-color: #e8ecf7;
+
+    padding: 10px;
+
+    border-radius: 5px;
+}
+
+
+.habilidade strong {
+    color: #111d3a;
+}
+
+
+.habilidade p {
+    margin: 5px 0 0;
 }
 
 
