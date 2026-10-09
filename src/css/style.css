@@ -25,6 +25,8 @@ body {
 
     min-height: 100vh;
 
+    position: relative;
+
 }
 
 
@@ -710,4 +712,24 @@ body.tema-escuro #paginacao button.pagina-atual {
 body.tema-escuro nav button {
     background-color: #293241;
     color: white;
+}
+
+/* ESCURECER FUNDO NO TEMA ESCURO */
+
+body.tema-escuro::before {
+    content: "";
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    z-index: -1;
+
+    pointer-events: none;
 }
