@@ -1,172 +1,118 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>DigiStory</title>
 
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-<body>
-
+  <body>
     <!-- CABEÇALHO -->
     <header>
+      <h1>DIGISTORY</h1>
 
-        <h1>DIGISTORY</h1>
+      <nav>
+        <a href="#inicio">Início</a>
+        <a href="#classificacoes">Classificações</a>
+        <a href="#lista">Digimons</a>
+        <a href="#sobre">Sobre</a>
 
-        <nav>
-            <a href="#inicio">Início</a>
-            <a href="#classificacoes">Classificações</a>
-            <a href="#lista">Digimons</a>
-            <a href="#sobre">Sobre</a>
-
-            <button id="botaoTema">
-                🌙 Tema escuro
-            </button>
-        </nav>
-
+        <button id="botaoTema">🌙 Tema escuro</button>
+      </nav>
     </header>
 
-
     <main>
+      <!-- TELA INICIAL -->
+      <section class="inicio" id="inicio">
+        <div class="inicio-conteudo">
+          <h2>Bem-vindo ao DigiStory!</h2>
 
-        <!-- TELA INICIAL -->
-        <section class="inicio" id="inicio">
+          <p>
+            Explore o universo dos Digimons, conheça seus personagens e descubra
+            suas classificações.
+          </p>
 
-            <div class="inicio-conteudo">
+          <a href="#lista" class="botao-explorar"> Explorar Digimons </a>
+        </div>
+      </section>
 
-                <h2>Bem-vindo ao DigiStory!</h2>
+      <!-- CLASSIFICAÇÕES -->
+      <section class="classificacoes" id="classificacoes">
+        <h2>Classificações dos Digimons</h2>
 
-                <p>
-                    Explore o universo dos Digimons,
-                    conheça seus personagens e descubra
-                    suas classificações.
-                </p>
+        <p>Explore os Digimons de acordo com suas classificações.</p>
 
-                <a href="#lista" class="botao-explorar">
-                    Explorar Digimons
-                </a>
+        <div class="tipos-digimon">
+          <button class="tipo-btn" data-tipo="Vaccine">Vaccine</button>
 
+          <button class="tipo-btn" data-tipo="Virus">Virus</button>
+
+          <button class="tipo-btn" data-tipo="Data">Data</button>
+
+          <button class="tipo-btn" data-tipo="Free">Free</button>
+
+          <button class="tipo-btn" data-tipo="Variable">Variable</button>
+
+          <button class="tipo-btn" data-tipo="Unknown">Unknown</button>
+        </div>
+      </section>
+
+      <!-- DIGIMONS EM DESTAQUE -->
+      <section class="populares" id="populares">
+        <h2>Digimons em destaque</h2>
+
+        <p>Conheça alguns dos personagens do universo Digimon.</p>
+
+        <div class="digimon-grid" id="digimonPopulares">
+          <div class="carregando">Carregando destaques...</div>
+        </div>
+      </section>
+
+      <!-- LISTA COMPLETA -->
+      <section class="lista-completa" id="lista">
+        <div class="topo">
+          <h2>Todos os Digimons</h2>
+
+          <div class="grupo-pesquisas">
+            <input
+              type="text"
+              id="pesquisa"
+              placeholder="Pesquisar por nome..."
+            />
+
+            <div class="pesquisa-id">
+              <input
+                type="number"
+                id="pesquisaId"
+                placeholder="ID do Digimon"
+                min="1"
+              />
+
+              <button id="btnPesquisarId">Pesquisar ID</button>
             </div>
+          </div>
+        </div>
 
+        <section class="digimon-grid" id="digimonGrid">
+          <div class="carregando">Carregando Digimons...</div>
         </section>
-
-
-        <!-- CLASSIFICAÇÕES -->
-        <section class="classificacoes" id="classificacoes">
-
-            <h2>Classificações dos Digimons</h2>
-
-            <p>
-                Explore os Digimons de acordo com suas classificações.
-            </p>
-
-            <div class="tipos-digimon">
-
-                <button class="tipo-btn" data-tipo="Vaccine">
-                    Vaccine
-                </button>
-
-                <button class="tipo-btn" data-tipo="Virus">
-                    Virus
-                </button>
-
-                <button class="tipo-btn" data-tipo="Data">
-                    Data
-                </button>
-
-                <button class="tipo-btn" data-tipo="Free">
-                    Free
-                </button>
-
-                <button class="tipo-btn" data-tipo="Variable">
-                    Variable
-                </button>
-
-                <button class="tipo-btn" data-tipo="Unknown">
-                    Unknown
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- DIGIMONS EM DESTAQUE -->
-        <section class="populares" id="populares">
-
-            <h2>Digimons em destaque</h2>
-
-            <p>
-                Conheça alguns dos personagens do universo Digimon.
-            </p>
-
-            <div class="digimon-grid" id="digimonPopulares">
-
-                <div class="carregando">
-                    Carregando destaques...
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- LISTA COMPLETA -->
-        <section class="lista-completa" id="lista">
-
-            <div class="topo">
-
-                <h2>Todos os Digimons</h2>
-
-                <input
-                    type="text"
-                    id="pesquisa"
-                    placeholder="Pesquisar Digimon..."
-                >
-
-            </div>
-
-            <section
-                class="digimon-grid"
-                id="digimonGrid"
-            >
-
-                <div class="carregando">
-                    Carregando Digimons...
-                </div>
-
-            </section>
-
-        </section>
-
+      </section>
     </main>
-
 
     <!-- RODAPÉ -->
     <footer id="sobre">
+      <h2>DigiStory</h2>
 
-        <h2>DigiStory</h2>
+      <p>Explore o universo dos Digimons!</p>
 
-        <p>
-            67 Explore o universo dos Digimons! 67
-        </p>
-
-        <p>
-            © lorran crianção gosta de chorar um montão
-        </p>
-
+      <p>© sara morango do amor 2024. Todos os direitos reservados.</p>
     </footer>
-
 
     <!-- SCRIPTS -->
     <script src="css/script.js"></script>
     <script src="css/tema.js"></script>
-
-</body>
-
+  </body>
 </html>

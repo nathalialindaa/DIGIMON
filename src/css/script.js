@@ -1,4 +1,3 @@
-
 const API_URL = "https://digi-api.com/api/v1/digimon";
 
 const grid = document.getElementById("digimonGrid");
@@ -20,45 +19,39 @@ let textoPesquisa = "";
 let detalhesCache = new Map();
 let solicitacaoFiltro = 0;
 
-
 // ======================================
 // CARREGAR TODOS OS DIGIMONS
 // ======================================
 
 async function carregarDigimons() {
-
-    try {
-
-        grid.innerHTML = `
+  try {
+    grid.innerHTML = `
             <div class="carregando">
                 Carregando Digimons...
             </div>
         `;
 
-        let pagina = 0;
-        let continuar = true;
+    let pagina = 0;
+    let continuar = true;
 
-        while (continuar) {
+    while (continuar) {
+      const resposta = await fetch(`${API_URL}?page=${pagina}&pageSize=100`);
 
-            const resposta = await fetch(
-                `${API_URL}?page=${pagina}&pageSize=100`
-            );
+      if (!resposta.ok) {
+        throw new Error("Erro ao acessar a API.");
+      }
 
-            if (!resposta.ok) {
-                throw new Error("Erro ao acessar a API.");
-            }
+      const dados = await resposta.json();
 
-            const dados = await resposta.json();
+      if (!dados.content || dados.content.length === 0) {
+        break;
+      }
 
-            if (!dados.content || dados.content.length === 0) {
-                break;
-            }
+      todosDigimons.push(...dados.content);
 
-            todosDigimons.push(...dados.content);
+      pagina++;
 
-            pagina++;
-
-            grid.innerHTML = `
+      grid.innerHTML = `
                 <div class="carregando">
                     Carregando Digimons...
                     <br><br>
@@ -66,148 +59,126 @@ async function carregarDigimons() {
                 </div>
             `;
 
-            if (dados.content.length < 100) {
-                continuar = false;
-            }
-        }
+      if (dados.content.length < 100) {
+        continuar = false;
+      }
+    }
 
-        digimonsFiltrados = [...todosDigimons];
+    digimonsFiltrados = [...todosDigimons];
 
-        totalPaginas = Math.ceil(
-            digimonsFiltrados.length / DIGIMONS_POR_PAGINA
-        );
+    totalPaginas = Math.ceil(digimonsFiltrados.length / DIGIMONS_POR_PAGINA);
 
-        console.log("TOTAL DE DIGIMONS:", todosDigimons.length);
+    console.log("TOTAL DE DIGIMONS:", todosDigimons.length);
 
-        // Carrega os destaques depois de receber a lista.
-        carregarDestaques();
+    // Carrega os destaques depois de receber a lista.
+    carregarDestaques();
 
-        mostrarPagina();
+    mostrarPagina();
+  } catch (erro) {
+    console.error(erro);
 
-    } catch (erro) {
-
-        console.error(erro);
-
-        grid.innerHTML = `
+    grid.innerHTML = `
             <div class="erro">
                 <h3>Erro ao carregar os Digimons</h3>
                 <p>Verifique sua conexão com a internet.</p>
             </div>
         `;
 
-        if (gridPopulares) {
-            gridPopulares.innerHTML = `
+    if (gridPopulares) {
+      gridPopulares.innerHTML = `
                 <div class="erro">
                     Não foi possível carregar os destaques.
                 </div>
             `;
-        }
     }
+  }
 }
-
 
 // ======================================
 // DIGIMONS EM DESTAQUE
 // ======================================
 
 function carregarDestaques() {
+  if (!gridPopulares) return;
 
-    if (!gridPopulares) return;
+  // Digimons escolhidos para aparecer na tela inicial.
+  const nomesDestaques = [
+    "Agumon",
+    "Gabumon",
+    "Patamon",
+    "Gatomon",
+    "Tentomon",
+    "Veemon",
+  ];
 
-    // Digimons escolhidos para aparecer na tela inicial.
-    const nomesDestaques = [
-        "Agumon",
-        "Gabumon",
-        "Patamon",
-        "Gatomon",
-        "Tentomon",
-        "Veemon"
-    ];
+  const destaques = nomesDestaques
+    .map(function (nome) {
+      return todosDigimons.find(function (digimon) {
+        return digimon.name.toLowerCase() === nome.toLowerCase();
+      });
+    })
+    .filter(Boolean);
 
-    const destaques = nomesDestaques
-        .map(function(nome) {
+  // Caso algum nome não esteja disponível na API,
+  // completa os espaços com outros Digimons.
+  if (destaques.length < 6) {
+    todosDigimons.forEach(function (digimon) {
+      if (
+        destaques.length < 6 &&
+        !destaques.some((item) => item.id === digimon.id)
+      ) {
+        destaques.push(digimon);
+      }
+    });
+  }
 
-            return todosDigimons.find(function(digimon) {
-
-                return digimon.name.toLowerCase() === nome.toLowerCase();
-
-            });
-
-        })
-        .filter(Boolean);
-
-    // Caso algum nome não esteja disponível na API,
-    // completa os espaços com outros Digimons.
-    if (destaques.length < 6) {
-
-        todosDigimons.forEach(function(digimon) {
-
-            if (
-                destaques.length < 6 &&
-                !destaques.some(item => item.id === digimon.id)
-            ) {
-                destaques.push(digimon);
-            }
-
-        });
-    }
-
-    mostrarDigimons(gridPopulares, destaques);
+  mostrarDigimons(gridPopulares, destaques);
 }
-
 
 // ======================================
 // MOSTRAR PÁGINA
 // ======================================
 
 function mostrarPagina() {
+  const inicio = (paginaAtual - 1) * DIGIMONS_POR_PAGINA;
 
-    const inicio =
-        (paginaAtual - 1) * DIGIMONS_POR_PAGINA;
+  const fim = inicio + DIGIMONS_POR_PAGINA;
 
-    const fim =
-        inicio + DIGIMONS_POR_PAGINA;
+  const digimonsDaPagina = digimonsFiltrados.slice(inicio, fim);
 
-    const digimonsDaPagina =
-        digimonsFiltrados.slice(inicio, fim);
+  mostrarDigimons(grid, digimonsDaPagina);
 
-    mostrarDigimons(grid, digimonsDaPagina);
-
-    mostrarPaginacao();
+  mostrarPaginacao();
 }
-
 
 // ======================================
 // MOSTRAR CARDS
 // ======================================
 
 function mostrarDigimons(container, digimons) {
+  if (!container) return;
 
-    if (!container) return;
+  container.innerHTML = "";
 
-    container.innerHTML = "";
-
-    if (digimons.length === 0) {
-
-        container.innerHTML = `
+  if (digimons.length === 0) {
+    container.innerHTML = `
             <div class="erro">
                 <h3>Nenhum Digimon encontrado.</h3>
                 <p>Tente outra pesquisa ou classificação.</p>
             </div>
         `;
 
-        return;
-    }
+    return;
+  }
 
-    digimons.forEach(function(digimon) {
+  digimons.forEach(function (digimon) {
+    const card = document.createElement("article");
 
-        const card = document.createElement("article");
+    card.classList.add("digimon-card");
 
-        card.classList.add("digimon-card");
+    const numero = String(digimon.id).padStart(3, "0");
 
-        const numero = String(digimon.id).padStart(3, "0");
-
-        card.innerHTML = `
+    card.innerHTML = `
 
             <span class="numero">
                 #${numero}
@@ -233,250 +204,208 @@ function mostrarDigimons(container, digimons) {
             </div>
         `;
 
-        container.appendChild(card);
+    container.appendChild(card);
+  });
 
-    });
-
-    adicionarEventosBotoes(container);
+  adicionarEventosBotoes(container);
 }
-
 
 // ======================================
 // PAGINAÇÃO
 // ======================================
 
 function mostrarPaginacao() {
+  let paginacao = document.getElementById("paginacao");
 
-    let paginacao = document.getElementById("paginacao");
+  if (!paginacao) {
+    paginacao = document.createElement("div");
 
-    if (!paginacao) {
+    paginacao.id = "paginacao";
 
-        paginacao = document.createElement("div");
+    grid.parentNode.insertBefore(paginacao, grid.nextSibling);
+  }
 
-        paginacao.id = "paginacao";
+  paginacao.innerHTML = "";
 
-        grid.parentNode.insertBefore(
-            paginacao,
-            grid.nextSibling
-        );
+  totalPaginas = Math.ceil(digimonsFiltrados.length / DIGIMONS_POR_PAGINA);
+
+  if (totalPaginas <= 1) {
+    return;
+  }
+
+  // ANTERIOR
+
+  const anterior = document.createElement("button");
+
+  anterior.textContent = "← Anterior";
+  anterior.disabled = paginaAtual === 1;
+
+  anterior.onclick = function () {
+    if (paginaAtual > 1) {
+      paginaAtual--;
+
+      mostrarPagina();
+
+      rolarParaLista();
+    }
+  };
+
+  paginacao.appendChild(anterior);
+
+  // NÚMEROS
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    const botao = document.createElement("button");
+
+    botao.textContent = i;
+
+    if (i === paginaAtual) {
+      botao.classList.add("pagina-atual");
     }
 
-    paginacao.innerHTML = "";
+    botao.onclick = function () {
+      paginaAtual = i;
 
-    totalPaginas = Math.ceil(
-        digimonsFiltrados.length / DIGIMONS_POR_PAGINA
-    );
+      mostrarPagina();
 
-    if (totalPaginas <= 1) {
-        return;
-    }
-
-    // ANTERIOR
-
-    const anterior = document.createElement("button");
-
-    anterior.textContent = "← Anterior";
-    anterior.disabled = paginaAtual === 1;
-
-    anterior.onclick = function() {
-
-        if (paginaAtual > 1) {
-
-            paginaAtual--;
-
-            mostrarPagina();
-
-            rolarParaLista();
-        }
+      rolarParaLista();
     };
 
-    paginacao.appendChild(anterior);
+    paginacao.appendChild(botao);
+  }
 
+  // PRÓXIMA
 
-    // NÚMEROS
+  const proximo = document.createElement("button");
 
-    for (let i = 1; i <= totalPaginas; i++) {
+  proximo.textContent = "Próxima →";
+  proximo.disabled = paginaAtual === totalPaginas;
 
-        const botao = document.createElement("button");
+  proximo.onclick = function () {
+    if (paginaAtual < totalPaginas) {
+      paginaAtual++;
 
-        botao.textContent = i;
+      mostrarPagina();
 
-        if (i === paginaAtual) {
-            botao.classList.add("pagina-atual");
-        }
-
-        botao.onclick = function() {
-
-            paginaAtual = i;
-
-            mostrarPagina();
-
-            rolarParaLista();
-        };
-
-        paginacao.appendChild(botao);
+      rolarParaLista();
     }
+  };
 
-
-    // PRÓXIMA
-
-    const proximo = document.createElement("button");
-
-    proximo.textContent = "Próxima →";
-    proximo.disabled = paginaAtual === totalPaginas;
-
-    proximo.onclick = function() {
-
-        if (paginaAtual < totalPaginas) {
-
-            paginaAtual++;
-
-            mostrarPagina();
-
-            rolarParaLista();
-        }
-    };
-
-    paginacao.appendChild(proximo);
+  paginacao.appendChild(proximo);
 }
-
 
 function rolarParaLista() {
-
-    document.getElementById("lista").scrollIntoView({
-        behavior: "smooth"
-    });
+  document.getElementById("lista").scrollIntoView({
+    behavior: "smooth",
+  });
 }
-
 
 // ======================================
 // ABRIR INFORMAÇÕES DO DIGIMON
 // ======================================
 
 function adicionarEventosBotoes(container) {
+  const botoes = container.querySelectorAll(".info-btn");
 
-    const botoes = container.querySelectorAll(".info-btn");
+  botoes.forEach(function (botao) {
+    botao.onclick = function () {
+      const nome = botao.getAttribute("data-nome");
 
-    botoes.forEach(function(botao) {
-
-        botao.onclick = function() {
-
-            const nome = botao.getAttribute("data-nome");
-
-            window.location.href =
-                "personagem.html?nome=" +
-                encodeURIComponent(nome);
-        };
-    });
+      window.location.href = "personagem.html?nome=" + encodeURIComponent(nome);
+    };
+  });
 }
-
 
 // ======================================
 // NORMALIZAR CLASSIFICAÇÕES
 // ======================================
 
 function normalizarTipo(tipo) {
-
-    return String(tipo || "")
-        .trim()
-        .toLowerCase();
+  return String(tipo || "")
+    .trim()
+    .toLowerCase();
 }
-
 
 // ======================================
 // EXTRAIR CLASSIFICAÇÕES
 // ======================================
 
 function extrairTipos(digimon) {
+  const origem = digimon.types || digimon.type || [];
 
-    const origem = digimon.types || digimon.type || [];
+  const lista = Array.isArray(origem) ? origem : [origem];
 
-    const lista = Array.isArray(origem)
-        ? origem
-        : [origem];
+  return lista
+    .map(function (item) {
+      if (typeof item === "string") {
+        return normalizarTipo(item);
+      }
 
-    return lista.map(function(item) {
-
-        if (typeof item === "string") {
-            return normalizarTipo(item);
-        }
-
-        return normalizarTipo(
-            item?.type ||
-            item?.name ||
-            item?.value
-        );
-
-    }).filter(Boolean);
+      return normalizarTipo(item?.type || item?.name || item?.value);
+    })
+    .filter(Boolean);
 }
-
 
 // ======================================
 // OBTER CLASSIFICAÇÃO DO DIGIMON
 // ======================================
 
 async function obterTipos(digimon) {
+  // Primeiro tenta aproveitar os dados da listagem.
+  const tiposLista = extrairTipos(digimon);
 
-    // Primeiro tenta aproveitar os dados da listagem.
-    const tiposLista = extrairTipos(digimon);
+  if (tiposLista.length > 0) {
+    return tiposLista;
+  }
 
-    if (tiposLista.length > 0) {
-        return tiposLista;
-    }
+  // Verifica se os detalhes já foram consultados.
+  if (detalhesCache.has(digimon.id)) {
+    return detalhesCache.get(digimon.id);
+  }
 
-    // Verifica se os detalhes já foram consultados.
-    if (detalhesCache.has(digimon.id)) {
-        return detalhesCache.get(digimon.id);
-    }
+  // Consulta os detalhes individuais somente quando necessário.
+  const resposta = await fetch(`${API_URL}/${digimon.id}`);
 
-    // Consulta os detalhes individuais somente quando necessário.
-    const resposta = await fetch(
-        `${API_URL}/${digimon.id}`
-    );
+  if (!resposta.ok) {
+    throw new Error("Erro ao consultar " + digimon.name);
+  }
 
-    if (!resposta.ok) {
-        throw new Error("Erro ao consultar " + digimon.name);
-    }
+  const detalhes = await resposta.json();
 
-    const detalhes = await resposta.json();
+  const tipos = extrairTipos(detalhes);
 
-    const tipos = extrairTipos(detalhes);
+  detalhesCache.set(digimon.id, tipos);
 
-    detalhesCache.set(digimon.id, tipos);
-
-    return tipos;
+  return tipos;
 }
-
 
 // ======================================
 // FILTRAR POR CLASSIFICAÇÃO
 // ======================================
 
 async function filtrarPorTipo(tipo) {
+  const novaSolicitacao = ++solicitacaoFiltro;
 
-    const novaSolicitacao = ++solicitacaoFiltro;
-
-    // Clicar novamente no tipo selecionado remove o filtro.
-    if (tipoAtual === tipo) {
-
-        tipoAtual = null;
-        digimonsDoTipo = [];
-
-        atualizarBotoesTipos();
-
-        aplicarPesquisa();
-
-        return;
-    }
-
-    tipoAtual = tipo;
+  // Clicar novamente no tipo selecionado remove o filtro.
+  if (tipoAtual === tipo) {
+    tipoAtual = null;
     digimonsDoTipo = [];
-
-    paginaAtual = 1;
 
     atualizarBotoesTipos();
 
-    grid.innerHTML = `
+    aplicarPesquisa();
+
+    return;
+  }
+
+  tipoAtual = tipo;
+  digimonsDoTipo = [];
+
+  paginaAtual = 1;
+
+  atualizarBotoesTipos();
+
+  grid.innerHTML = `
         <div class="carregando">
             Buscando Digimons da classificação ${tipo}...
             <br><br>
@@ -484,178 +413,252 @@ async function filtrarPorTipo(tipo) {
         </div>
     `;
 
-    const resultados = [];
+  const resultados = [];
 
-    let indice = 0;
-    let carregados = 0;
+  let indice = 0;
+  let carregados = 0;
 
-    const total = todosDigimons.length;
+  const total = todosDigimons.length;
 
-    async function trabalhador() {
+  async function trabalhador() {
+    while (indice < total) {
+      const posicao = indice++;
 
-        while (indice < total) {
+      const digimon = todosDigimons[posicao];
 
-            const posicao = indice++;
+      try {
+        const tipos = await obterTipos(digimon);
 
-            const digimon = todosDigimons[posicao];
+        if (tipos.includes(normalizarTipo(tipo))) {
+          resultados.push(digimon);
+        }
+      } catch (erro) {
+        console.warn("Erro ao consultar:", digimon.name, erro);
+      }
 
-            try {
+      carregados++;
 
-                const tipos = await obterTipos(digimon);
-
-                if (tipos.includes(normalizarTipo(tipo))) {
-                    resultados.push(digimon);
-                }
-
-            } catch (erro) {
-
-                console.warn(
-                    "Erro ao consultar:",
-                    digimon.name,
-                    erro
-                );
-            }
-
-            carregados++;
-
-            if (
-                carregados % 40 === 0 ||
-                carregados === total
-            ) {
-
-                if (novaSolicitacao === solicitacaoFiltro) {
-
-                    grid.innerHTML = `
+      if (carregados % 40 === 0 || carregados === total) {
+        if (novaSolicitacao === solicitacaoFiltro) {
+          grid.innerHTML = `
                         <div class="carregando">
                             Procurando Digimons ${tipo}...
                             <br><br>
                             ${carregados} de ${total} consultados
                         </div>
                     `;
-                }
-            }
         }
+      }
+    }
+  }
+
+  try {
+    // Limita as consultas simultâneas para evitar
+    // sobrecarregar a API.
+    await Promise.all(Array.from({ length: 5 }, () => trabalhador()));
+
+    if (novaSolicitacao !== solicitacaoFiltro) {
+      return;
     }
 
-    try {
+    digimonsDoTipo = resultados;
 
-        // Limita as consultas simultâneas para evitar
-        // sobrecarregar a API.
-        await Promise.all(
-            Array.from(
-                { length: 5 },
-                () => trabalhador()
-            )
-        );
+    aplicarPesquisa();
 
-        if (novaSolicitacao !== solicitacaoFiltro) {
-            return;
-        }
+    console.log(`Digimons da classificação ${tipo}:`, resultados.length);
+  } catch (erro) {
+    console.error(erro);
 
-        digimonsDoTipo = resultados;
-
-        aplicarPesquisa();
-
-        console.log(
-            `Digimons da classificação ${tipo}:`,
-            resultados.length
-        );
-
-    } catch (erro) {
-
-        console.error(erro);
-
-        if (novaSolicitacao === solicitacaoFiltro) {
-
-            grid.innerHTML = `
+    if (novaSolicitacao === solicitacaoFiltro) {
+      grid.innerHTML = `
                 <div class="erro">
                     <h3>Não foi possível filtrar os Digimons.</h3>
                     <p>Tente novamente.</p>
                 </div>
             `;
-        }
     }
+  }
 }
-
 
 // ======================================
 // ATUALIZAR BOTÕES DE CLASSIFICAÇÃO
 // ======================================
 
 function atualizarBotoesTipos() {
+  const botoes = document.querySelectorAll(".tipo-btn");
 
-    const botoes = document.querySelectorAll(".tipo-btn");
+  botoes.forEach(function (botao) {
+    const tipo = botao.getAttribute("data-tipo");
 
-    botoes.forEach(function(botao) {
+    const selecionado = tipo === tipoAtual;
 
-        const tipo = botao.getAttribute("data-tipo");
+    botao.classList.toggle("tipo-selecionado", selecionado);
 
-        const selecionado = tipo === tipoAtual;
-
-        botao.classList.toggle(
-            "tipo-selecionado",
-            selecionado
-        );
-
-        botao.setAttribute(
-            "aria-pressed",
-            selecionado
-        );
-    });
+    botao.setAttribute("aria-pressed", selecionado);
+  });
 }
-
 
 // ======================================
 // PESQUISA E FILTROS
 // ======================================
 
 function aplicarPesquisa() {
+  const base = tipoAtual ? digimonsDoTipo : todosDigimons;
 
-    const base = tipoAtual
-        ? digimonsDoTipo
-        : todosDigimons;
+  digimonsFiltrados = base.filter(function (digimon) {
+    return digimon.name.toLowerCase().includes(textoPesquisa);
+  });
 
-    digimonsFiltrados = base.filter(function(digimon) {
+  paginaAtual = 1;
 
-        return digimon.name
-            .toLowerCase()
-            .includes(textoPesquisa);
-    });
-
-    paginaAtual = 1;
-
-    mostrarPagina();
+  mostrarPagina();
 }
-
 
 // ======================================
 // PESQUISAR POR NOME
 // ======================================
 
-pesquisa.addEventListener("input", function() {
+pesquisa.addEventListener("input", function () {
+  textoPesquisa = pesquisa.value.toLowerCase().trim();
 
-    textoPesquisa = pesquisa.value
-        .toLowerCase()
-        .trim();
-
-    aplicarPesquisa();
+  aplicarPesquisa();
 });
 
+// ======================================
+// PESQUISAR POR ID
+// ======================================
+
+const pesquisaId = document.getElementById("pesquisaId");
+const btnPesquisarId = document.getElementById("btnPesquisarId");
+
+async function pesquisarPorId() {
+  const id = pesquisaId.value.trim();
+
+  if (!id || Number(id) < 1 || !Number.isInteger(Number(id))) {
+    alert("Digite um ID válido!");
+    return;
+  }
+
+  grid.innerHTML = `
+        <div class="carregando">
+            Procurando Digimon...
+        </div>
+    `;
+
+  try {
+    const resposta = await fetch(`${API_URL}/${id}`);
+
+    if (!resposta.ok) {
+      throw new Error("Digimon não encontrado.");
+    }
+
+    const dados = await resposta.json();
+
+    // Normaliza a imagem retornada pela API.
+    const imagem = Array.isArray(dados.images)
+      ? dados.images[0]?.href
+      : dados.images?.href;
+
+    const digimonEncontrado = {
+      id: dados.id,
+      name: dados.name,
+      image: imagem || dados.image?.href || dados.image || "",
+    };
+
+    // Remove os filtros anteriores.
+    pesquisa.value = "";
+    textoPesquisa = "";
+
+    tipoAtual = null;
+    digimonsDoTipo = [];
+
+    atualizarBotoesTipos();
+
+    // Exibe somente o Digimon encontrado.
+    mostrarDigimons(grid, [digimonEncontrado]);
+
+    // Esconde a paginação.
+    const paginacao = document.getElementById("paginacao");
+
+    if (paginacao) {
+      paginacao.innerHTML = "";
+    }
+
+    rolarParaLista();
+  } catch (erro) {
+    console.error(erro);
+
+    grid.innerHTML = `
+            <div class="erro">
+                <h3>Digimon não encontrado!</h3>
+                <p>Verifique o ID e tente novamente.</p>
+            </div>
+        `;
+
+    const paginacao = document.getElementById("paginacao");
+
+    if (paginacao) {
+      paginacao.innerHTML = "";
+    }
+  }
+}
+
+// Clique no botão.
+btnPesquisarId.addEventListener("click", pesquisarPorId);
+
+// Permite pesquisar apertando Enter.
+pesquisaId.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    pesquisarPorId();
+  }
+});
+
+// ======================================
+// VOLTAR À LISTA COMPLETA AO APAGAR
+// ======================================
+
+function voltarListaCompleta() {
+  // Limpa as pesquisas
+  pesquisa.value = "";
+  pesquisaId.value = "";
+
+  // Limpa os filtros
+  textoPesquisa = "";
+  tipoAtual = null;
+  digimonsDoTipo = [];
+
+  atualizarBotoesTipos();
+
+  // Volta para a lista completa
+  paginaAtual = 1;
+  carregarDigimons();
+}
+
+// Ao apagar a pesquisa por nome
+pesquisa.addEventListener("input", function () {
+  if (pesquisa.value.trim() === "") {
+    voltarListaCompleta();
+  }
+});
+
+// Ao apagar a pesquisa por ID
+pesquisaId.addEventListener("input", function () {
+  if (pesquisaId.value.trim() === "") {
+    voltarListaCompleta();
+  }
+});
 
 // ======================================
 // EVENTOS DOS BOTÕES DE TIPO
 // ======================================
 
-document.querySelectorAll(".tipo-btn").forEach(function(botao) {
+document.querySelectorAll(".tipo-btn").forEach(function (botao) {
+  botao.addEventListener("click", function () {
+    const tipo = botao.getAttribute("data-tipo");
 
-    botao.addEventListener("click", function() {
-
-        const tipo = botao.getAttribute("data-tipo");
-
-        filtrarPorTipo(tipo);
-    });
+    filtrarPorTipo(tipo);
+  });
 });
-
 
 // ======================================
 // INICIAR SITE
