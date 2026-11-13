@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="pt-BR">
   <head>
@@ -7,6 +8,40 @@
     <title>DigiStory</title>
 
     <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      .inicio-botoes {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+      }
+
+      .botao-surpresa {
+        background: linear-gradient(135deg, #8e44ad, #e84393);
+        color: white;
+        border: none;
+        padding: 13px 25px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .botao-surpresa:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(142, 68, 173, 0.35);
+      }
+
+      .botao-surpresa:disabled {
+        opacity: 0.6;
+        cursor: wait;
+        transform: none;
+      }
+    </style>
   </head>
 
   <body>
@@ -35,7 +70,13 @@
             suas classificações.
           </p>
 
-          <a href="#lista" class="botao-explorar"> Explorar Digimons </a>
+          <div class="inicio-botoes">
+            <a href="#lista" class="botao-explorar"> Explorar Digimons </a>
+
+            <button id="btnSurpresa" class="botao-surpresa">
+              🎲 Me surpreenda!
+            </button>
+          </div>
         </div>
       </section>
 
@@ -47,15 +88,10 @@
 
         <div class="tipos-digimon">
           <button class="tipo-btn" data-tipo="Vaccine">Vaccine</button>
-
           <button class="tipo-btn" data-tipo="Virus">Virus</button>
-
           <button class="tipo-btn" data-tipo="Data">Data</button>
-
           <button class="tipo-btn" data-tipo="Free">Free</button>
-
           <button class="tipo-btn" data-tipo="Variable">Variable</button>
-
           <button class="tipo-btn" data-tipo="Unknown">Unknown</button>
         </div>
       </section>
@@ -112,7 +148,53 @@
     </footer>
 
     <!-- SCRIPTS -->
-    <script src="css/script.js"></script>
-    <script src="css/tema.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/tema.js"></script>
+
+    <script>
+      // BOTÃO ME SURPREENDA
+      const btnSurpresa = document.getElementById("btnSurpresa");
+
+      btnSurpresa.addEventListener("click", async function () {
+        btnSurpresa.disabled = true;
+        btnSurpresa.textContent = "🎲 Sorteando Digimon...";
+
+        const API_URL = "https://digi-api.com/api/v1/digimon";
+
+        let encontrado = false;
+
+        for (let tentativa = 1; tentativa <= 40; tentativa++) {
+          const idAleatorio = Math.floor(Math.random() * 2000) + 1;
+
+          try {
+            const resposta = await fetch(`${API_URL}/${idAleatorio}`);
+
+            if (!resposta.ok) {
+              continue;
+            }
+
+            const digimon = await resposta.json();
+
+            if (digimon && digimon.name) {
+              encontrado = true;
+
+              window.location.href = `personagem.html?nome=${encodeURIComponent(digimon.name)}`;
+
+              return;
+            }
+          } catch (erro) {
+            console.error("Erro ao sortear Digimon:", erro);
+          }
+        }
+
+        if (!encontrado) {
+          alert("Não foi possível encontrar um Digimon. Tente novamente!");
+        }
+
+        btnSurpresa.disabled = false;
+        btnSurpresa.textContent = "🎲 Me surpreenda!";
+      });
+    </script>
   </body>
 </html>
+```

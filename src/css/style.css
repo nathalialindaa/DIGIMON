@@ -107,7 +107,7 @@ main {
 
   background-image:
     linear-gradient(rgba(20, 57, 119, 0.45), rgba(20, 57, 119, 0.55)),
-    url("img/fundo-inicial.jpg");
+    url("../assets/imagens/fundo-inicial.png");
 
   background-size: cover;
   background-position: center;
@@ -839,7 +839,7 @@ body.tema-escuro nav button {
 
   background-image:
     linear-gradient(rgba(10, 35, 90, 0.35), rgba(10, 35, 90, 0.45)),
-    url("img/fundo-inicial.png");
+    url("../assets/imagens/fundo-inicial.png");
 
   background-size: cover;
   background-position: center;
