@@ -3,6 +3,7 @@ const API_URL = "https://digi-api.com/api/v1/digimon";
 const grid = document.getElementById("digimonGrid");
 const gridPopulares = document.getElementById("digimonPopulares");
 const pesquisa = document.getElementById("pesquisa");
+const ordenacaoDigimons = document.getElementById("ordenacaoDigimons");
 
 const DIGIMONS_POR_PAGINA = 100;
 
@@ -16,6 +17,8 @@ let totalPaginas = 1;
 let tipoAtual = null;
 let textoPesquisa = "";
 
+let ordenacaoAtual = "id";
+
 let detalhesCache = new Map();
 let solicitacaoFiltro = 0;
 
@@ -26,10 +29,12 @@ let solicitacaoFiltro = 0;
 async function carregarDigimons() {
   try {
     grid.innerHTML = `
-            <div class="carregando">
-                Carregando Digimons...
-            </div>
-        `;
+      <div class="carregando">
+        Carregando Digimons...
+      </div>
+    `;
+
+    todosDigimons = [];
 
     let pagina = 0;
     let continuar = true;
@@ -52,25 +57,24 @@ async function carregarDigimons() {
       pagina++;
 
       grid.innerHTML = `
-                <div class="carregando">
-                    Carregando Digimons...
-                    <br><br>
-                    ${todosDigimons.length} carregados
-                </div>
-            `;
+        <div class="carregando">
+          Carregando Digimons...
+          <br><br>
+          ${todosDigimons.length} carregados
+        </div>
+      `;
 
       if (dados.content.length < 100) {
         continuar = false;
       }
     }
 
-    digimonsFiltrados = [...todosDigimons];
+    digimonsFiltrados = ordenarDigimons(todosDigimons);
 
     totalPaginas = Math.ceil(digimonsFiltrados.length / DIGIMONS_POR_PAGINA);
 
     console.log("TOTAL DE DIGIMONS:", todosDigimons.length);
 
-    // Carrega os destaques depois de receber a lista.
     carregarDestaques();
 
     mostrarPagina();
@@ -78,18 +82,18 @@ async function carregarDigimons() {
     console.error(erro);
 
     grid.innerHTML = `
-            <div class="erro">
-                <h3>Erro ao carregar os Digimons</h3>
-                <p>Verifique sua conexão com a internet.</p>
-            </div>
-        `;
+      <div class="erro">
+        <h3>Erro ao carregar os Digimons</h3>
+        <p>Verifique sua conexão com a internet.</p>
+      </div>
+    `;
 
     if (gridPopulares) {
       gridPopulares.innerHTML = `
-                <div class="erro">
-                    Não foi possível carregar os destaques.
-                </div>
-            `;
+        <div class="erro">
+          Não foi possível carregar os destaques.
+        </div>
+      `;
     }
   }
 }
@@ -101,7 +105,6 @@ async function carregarDigimons() {
 function carregarDestaques() {
   if (!gridPopulares) return;
 
-  // Digimons escolhidos para aparecer na tela inicial.
   const nomesDestaques = [
     "Agumon",
     "Gabumon",
@@ -119,8 +122,6 @@ function carregarDestaques() {
     })
     .filter(Boolean);
 
-  // Caso algum nome não esteja disponível na API,
-  // completa os espaços com outros Digimons.
   if (destaques.length < 6) {
     todosDigimons.forEach(function (digimon) {
       if (
@@ -136,12 +137,33 @@ function carregarDestaques() {
 }
 
 // ======================================
+// ORDENAR DIGIMONS
+// ======================================
+
+function ordenarDigimons(lista) {
+  const copia = [...lista];
+
+  if (ordenacaoAtual === "az") {
+    copia.sort(function (a, b) {
+      return a.name.localeCompare(b.name, "pt-BR", {
+        sensitivity: "base",
+      });
+    });
+  } else {
+    copia.sort(function (a, b) {
+      return Number(a.id) - Number(b.id);
+    });
+  }
+
+  return copia;
+}
+
+// ======================================
 // MOSTRAR PÁGINA
 // ======================================
 
 function mostrarPagina() {
   const inicio = (paginaAtual - 1) * DIGIMONS_POR_PAGINA;
-
   const fim = inicio + DIGIMONS_POR_PAGINA;
 
   const digimonsDaPagina = digimonsFiltrados.slice(inicio, fim);
@@ -162,11 +184,11 @@ function mostrarDigimons(container, digimons) {
 
   if (digimons.length === 0) {
     container.innerHTML = `
-            <div class="erro">
-                <h3>Nenhum Digimon encontrado.</h3>
-                <p>Tente outra pesquisa ou classificação.</p>
-            </div>
-        `;
+      <div class="erro">
+        <h3>Nenhum Digimon encontrado.</h3>
+        <p>Tente outra pesquisa ou classificação.</p>
+      </div>
+    `;
 
     return;
   }
@@ -179,30 +201,27 @@ function mostrarDigimons(container, digimons) {
     const numero = String(digimon.id).padStart(3, "0");
 
     card.innerHTML = `
+      <span class="numero">
+        #${numero}
+      </span>
 
-            <span class="numero">
-                #${numero}
-            </span>
+      <img
+        src="${digimon.image || ""}"
+        alt="${digimon.name}"
+        loading="lazy"
+      >
 
-            <img
-                src="${digimon.image || ""}"
-                alt="${digimon.name}"
-                loading="lazy"
-            >
+      <div class="digimon-info">
+        <h3>${digimon.name}</h3>
 
-            <div class="digimon-info">
-
-                <h3>${digimon.name}</h3>
-
-                <button
-                    class="info-btn"
-                    data-nome="${digimon.name}"
-                >
-                    Ver informações
-                </button>
-
-            </div>
-        `;
+        <button
+          class="info-btn"
+          data-nome="${digimon.name}"
+        >
+          Ver informações
+        </button>
+      </div>
+    `;
 
     container.appendChild(card);
   });
@@ -233,8 +252,6 @@ function mostrarPaginacao() {
     return;
   }
 
-  // ANTERIOR
-
   const anterior = document.createElement("button");
 
   anterior.textContent = "← Anterior";
@@ -243,16 +260,12 @@ function mostrarPaginacao() {
   anterior.onclick = function () {
     if (paginaAtual > 1) {
       paginaAtual--;
-
       mostrarPagina();
-
       rolarParaLista();
     }
   };
 
   paginacao.appendChild(anterior);
-
-  // NÚMEROS
 
   for (let i = 1; i <= totalPaginas; i++) {
     const botao = document.createElement("button");
@@ -265,16 +278,12 @@ function mostrarPaginacao() {
 
     botao.onclick = function () {
       paginaAtual = i;
-
       mostrarPagina();
-
       rolarParaLista();
     };
 
     paginacao.appendChild(botao);
   }
-
-  // PRÓXIMA
 
   const proximo = document.createElement("button");
 
@@ -284,15 +293,17 @@ function mostrarPaginacao() {
   proximo.onclick = function () {
     if (paginaAtual < totalPaginas) {
       paginaAtual++;
-
       mostrarPagina();
-
       rolarParaLista();
     }
   };
 
   paginacao.appendChild(proximo);
 }
+
+// ======================================
+// ROLAR ATÉ A LISTA
+// ======================================
 
 function rolarParaLista() {
   document.getElementById("lista").scrollIntoView({
@@ -327,11 +338,11 @@ function normalizarTipo(tipo) {
 }
 
 // ======================================
-// EXTRAIR CLASSIFICAÇÕES
+// EXTRAIR ATRIBUTOS
 // ======================================
 
 function extrairTipos(digimon) {
-  const origem = digimon.types || digimon.type || [];
+  const origem = digimon.attributes || digimon.attribute || [];
 
   const lista = Array.isArray(origem) ? origem : [origem];
 
@@ -341,29 +352,29 @@ function extrairTipos(digimon) {
         return normalizarTipo(item);
       }
 
-      return normalizarTipo(item?.type || item?.name || item?.value);
+      const atributo =
+        item?.attribute?.name || item?.attribute || item?.name || item?.value;
+
+      return normalizarTipo(atributo);
     })
     .filter(Boolean);
 }
 
 // ======================================
-// OBTER CLASSIFICAÇÃO DO DIGIMON
+// OBTER ATRIBUTOS DO DIGIMON
 // ======================================
 
 async function obterTipos(digimon) {
-  // Primeiro tenta aproveitar os dados da listagem.
-  const tiposLista = extrairTipos(digimon);
+  const atributosLista = extrairTipos(digimon);
 
-  if (tiposLista.length > 0) {
-    return tiposLista;
+  if (atributosLista.length > 0) {
+    return atributosLista;
   }
 
-  // Verifica se os detalhes já foram consultados.
   if (detalhesCache.has(digimon.id)) {
     return detalhesCache.get(digimon.id);
   }
 
-  // Consulta os detalhes individuais somente quando necessário.
   const resposta = await fetch(`${API_URL}/${digimon.id}`);
 
   if (!resposta.ok) {
@@ -372,11 +383,11 @@ async function obterTipos(digimon) {
 
   const detalhes = await resposta.json();
 
-  const tipos = extrairTipos(detalhes);
+  const atributos = extrairTipos(detalhes);
 
-  detalhesCache.set(digimon.id, tipos);
+  detalhesCache.set(digimon.id, atributos);
 
-  return tipos;
+  return atributos;
 }
 
 // ======================================
@@ -386,13 +397,11 @@ async function obterTipos(digimon) {
 async function filtrarPorTipo(tipo) {
   const novaSolicitacao = ++solicitacaoFiltro;
 
-  // Clicar novamente no tipo selecionado remove o filtro.
   if (tipoAtual === tipo) {
     tipoAtual = null;
     digimonsDoTipo = [];
 
     atualizarBotoesTipos();
-
     aplicarPesquisa();
 
     return;
@@ -406,12 +415,12 @@ async function filtrarPorTipo(tipo) {
   atualizarBotoesTipos();
 
   grid.innerHTML = `
-        <div class="carregando">
-            Buscando Digimons da classificação ${tipo}...
-            <br><br>
-            Aguarde um momento.
-        </div>
-    `;
+    <div class="carregando">
+      Buscando Digimons da classificação ${tipo}...
+      <br><br>
+      Aguarde um momento.
+    </div>
+  `;
 
   const resultados = [];
 
@@ -441,20 +450,18 @@ async function filtrarPorTipo(tipo) {
       if (carregados % 40 === 0 || carregados === total) {
         if (novaSolicitacao === solicitacaoFiltro) {
           grid.innerHTML = `
-                        <div class="carregando">
-                            Procurando Digimons ${tipo}...
-                            <br><br>
-                            ${carregados} de ${total} consultados
-                        </div>
-                    `;
+            <div class="carregando">
+              Procurando Digimons ${tipo}...
+              <br><br>
+              ${carregados} de ${total} consultados
+            </div>
+          `;
         }
       }
     }
   }
 
   try {
-    // Limita as consultas simultâneas para evitar
-    // sobrecarregar a API.
     await Promise.all(Array.from({ length: 5 }, () => trabalhador()));
 
     if (novaSolicitacao !== solicitacaoFiltro) {
@@ -471,11 +478,11 @@ async function filtrarPorTipo(tipo) {
 
     if (novaSolicitacao === solicitacaoFiltro) {
       grid.innerHTML = `
-                <div class="erro">
-                    <h3>Não foi possível filtrar os Digimons.</h3>
-                    <p>Tente novamente.</p>
-                </div>
-            `;
+        <div class="erro">
+          <h3>Não foi possível filtrar os Digimons.</h3>
+          <p>Tente novamente.</p>
+        </div>
+      `;
     }
   }
 }
@@ -505,14 +512,26 @@ function atualizarBotoesTipos() {
 function aplicarPesquisa() {
   const base = tipoAtual ? digimonsDoTipo : todosDigimons;
 
-  digimonsFiltrados = base.filter(function (digimon) {
+  const encontrados = base.filter(function (digimon) {
     return digimon.name.toLowerCase().includes(textoPesquisa);
   });
+
+  digimonsFiltrados = ordenarDigimons(encontrados);
 
   paginaAtual = 1;
 
   mostrarPagina();
 }
+
+// ======================================
+// EVENTO DE ORDENAÇÃO
+// ======================================
+
+ordenacaoDigimons.addEventListener("change", function () {
+  ordenacaoAtual = ordenacaoDigimons.value;
+
+  aplicarPesquisa();
+});
 
 // ======================================
 // PESQUISAR POR NOME
@@ -540,10 +559,10 @@ async function pesquisarPorId() {
   }
 
   grid.innerHTML = `
-        <div class="carregando">
-            Procurando Digimon...
-        </div>
-    `;
+    <div class="carregando">
+      Procurando Digimon...
+    </div>
+  `;
 
   try {
     const resposta = await fetch(`${API_URL}/${id}`);
@@ -554,7 +573,6 @@ async function pesquisarPorId() {
 
     const dados = await resposta.json();
 
-    // Normaliza a imagem retornada pela API.
     const imagem = Array.isArray(dados.images)
       ? dados.images[0]?.href
       : dados.images?.href;
@@ -565,7 +583,6 @@ async function pesquisarPorId() {
       image: imagem || dados.image?.href || dados.image || "",
     };
 
-    // Remove os filtros anteriores.
     pesquisa.value = "";
     textoPesquisa = "";
 
@@ -574,10 +591,8 @@ async function pesquisarPorId() {
 
     atualizarBotoesTipos();
 
-    // Exibe somente o Digimon encontrado.
     mostrarDigimons(grid, [digimonEncontrado]);
 
-    // Esconde a paginação.
     const paginacao = document.getElementById("paginacao");
 
     if (paginacao) {
@@ -589,11 +604,11 @@ async function pesquisarPorId() {
     console.error(erro);
 
     grid.innerHTML = `
-            <div class="erro">
-                <h3>Digimon não encontrado!</h3>
-                <p>Verifique o ID e tente novamente.</p>
-            </div>
-        `;
+      <div class="erro">
+        <h3>Digimon não encontrado!</h3>
+        <p>Verifique o ID e tente novamente.</p>
+      </div>
+    `;
 
     const paginacao = document.getElementById("paginacao");
 
@@ -603,10 +618,8 @@ async function pesquisarPorId() {
   }
 }
 
-// Clique no botão.
 btnPesquisarId.addEventListener("click", pesquisarPorId);
 
-// Permite pesquisar apertando Enter.
 pesquisaId.addEventListener("keydown", function (event) {
   if (event.key === "Enter") {
     pesquisarPorId();
@@ -614,34 +627,38 @@ pesquisaId.addEventListener("keydown", function (event) {
 });
 
 // ======================================
-// VOLTAR À LISTA COMPLETA AO APAGAR
+// VOLTAR À LISTA COMPLETA
 // ======================================
 
 function voltarListaCompleta() {
-  // Limpa as pesquisas
+  solicitacaoFiltro++;
+
   pesquisa.value = "";
   pesquisaId.value = "";
 
-  // Limpa os filtros
   textoPesquisa = "";
   tipoAtual = null;
   digimonsDoTipo = [];
 
   atualizarBotoesTipos();
 
-  // Volta para a lista completa
   paginaAtual = 1;
-  carregarDigimons();
+
+  digimonsFiltrados = ordenarDigimons(todosDigimons);
+
+  mostrarPagina();
 }
 
-// Ao apagar a pesquisa por nome
+// ======================================
+// EVENTOS DOS CAMPOS DE PESQUISA
+// ======================================
+
 pesquisa.addEventListener("input", function () {
   if (pesquisa.value.trim() === "") {
     voltarListaCompleta();
   }
 });
 
-// Ao apagar a pesquisa por ID
 pesquisaId.addEventListener("input", function () {
   if (pesquisaId.value.trim() === "") {
     voltarListaCompleta();
